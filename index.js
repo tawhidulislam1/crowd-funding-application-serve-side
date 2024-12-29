@@ -54,18 +54,6 @@ async function run() {
       res.send(result);
     });
 
-    app.get("/newDonated", async (req, res) => {
-      const curser = donatedCollection.find();
-      const result = await curser.toArray();
-      res.send(result);
-    });
-
-    app.post("/newDonated", async (req, res) => {
-      const newDonated = req.body;
-      console.log(newDonated);
-      const result = await donatedCollection.insertOne(newDonated);
-      res.send(result);
-    });
 
     app.delete("/campaign/:id", async (req, res) => {
       const id = req.params.id;
@@ -90,6 +78,23 @@ async function run() {
         },
       };
       const result = await CampaignCollection.updateOne(filter, Campaign, options);
+      res.send(result);
+    });
+
+
+    /// Dontaed
+
+    
+    app.get("/newDonated", async (req, res) => {
+      const curser = donatedCollection.find();
+      const result = await curser.toArray();
+      res.send(result);
+    });
+
+    app.post("/newDonated", async (req, res) => {
+      const newDonated = req.body;
+      console.log(newDonated);
+      const result = await donatedCollection.insertOne(newDonated);
       res.send(result);
     });
 
