@@ -16,7 +16,7 @@ app.get("/", (req, res) => {
 //foundation
 //Z4OKlujI34dPH2BE
 const uri =
-  "mongodb+srv://foundation:Z4OKlujI34dPH2BE@cluster0.zhrby.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+  "mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.zhrby.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -94,6 +94,7 @@ async function run() {
     app.post("/newDonated", async (req, res) => {
       const newDonated = req.body;
       console.log(newDonated);
+      delete newDonated._id;
       const result = await donatedCollection.insertOne(newDonated);
       res.send(result);
     });
