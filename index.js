@@ -54,19 +54,45 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/newDonated", async (req, res) => {
+      const curser = donatedCollection.find();
+      const result = await curser.toArray();
+      res.send(result);
+    });
+
     app.post("/newDonated", async (req, res) => {
-        const newDonated = req.body;
-        console.log(newDonated);
-        const result = await donatedCollection.insertOne(newDonated);
-        res.send(result);
-      });
-   
-      app.delete("/campaign/:id", async (req, res) => {
-        const id = req.params.id;
-        const query = { _id: new ObjectId(id) };
-        const result = await CampaignCollection.deleteOne(query);
-        res.send(result);
-      });
+      const newDonated = req.body;
+      console.log(newDonated);
+      const result = await donatedCollection.insertOne(newDonated);
+      res.send(result);
+    });
+
+    app.delete("/campaign/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await CampaignCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    app.put("/campaign/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updateCampaign = req.body;
+      const Campaign = {
+        $set: {
+          title: updateCampaign.title,
+          image: updateCampaign.image,
+          type: updateCampaign.type,
+          description: updateCampaign.description,
+          minDonation: updateCampaign.minDonation,
+          deadline: updateCampaign.deadline,
+        },
+      };
+      const result = await CampaignCollection.updateOne(filter, Campaign, options);
+      res.send(result);
+    });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
