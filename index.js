@@ -3,7 +3,7 @@ const cors = require("cors");
 require("dotenv").config();
 const app = express();
 const port = process.env.PORT || 5000;
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 //middleware
 app.use(cors());
@@ -13,10 +13,10 @@ app.get("/", (req, res) => {
   res.send("website is running.........");
 });
 
-
 //foundation
 //Z4OKlujI34dPH2BE
-const uri = "mongodb+srv://foundation:Z4OKlujI34dPH2BE@cluster0.zhrby.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const uri =
+  "mongodb+srv://foundation:Z4OKlujI34dPH2BE@cluster0.zhrby.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -24,7 +24,7 @@ const client = new MongoClient(uri, {
     version: ServerApiVersion.v1,
     strict: true,
     deprecationErrors: true,
-  }
+  },
 });
 
 async function run() {
@@ -32,24 +32,46 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
     const CampaignCollection = client.db("campaignDB").collection("campaign");
+    const donatedCollection = client.db("campaignDB").collection("donated");
 
     app.get("/campaign", async (req, res) => {
-        const curser = CampaignCollection.find();
-        const result = await curser.toArray();
-        res.send(result);
-      });
-  
+      const curser = CampaignCollection.find();
+      const result = await curser.toArray();
+      res.send(result);
+    });
+
     app.post("/addCampaign", async (req, res) => {
-        const newCampaign = req.body;
-        console.log(newCampaign);
-        const result = await CampaignCollection.insertOne(newCampaign);
+      const newCampaign = req.body;
+      console.log(newCampaign);
+      const result = await CampaignCollection.insertOne(newCampaign);
+      res.send(result);
+    });
+
+    app.get("/campaign/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await CampaignCollection.findOne(query);
+      res.send(result);
+    });
+
+    app.post("/newDonated", async (req, res) => {
+        const newDonated = req.body;
+        console.log(newDonated);
+        const result = await donatedCollection.insertOne(newDonated);
         res.send(result);
       });
-
-
+   
+      app.delete("/campaign/:id", async (req, res) => {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const result = await CampaignCollection.deleteOne(query);
+        res.send(result);
+      });
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    console.log(
+      "Pinged your deployment. You successfully connected to MongoDB!"
+    );
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
@@ -57,9 +79,6 @@ async function run() {
 }
 run().catch(console.dir);
 
-
-
 app.listen(port, () => {
-    console.log(`coffee website is running on port  : ${port}`);
-  });
-  
+  console.log(`coffee website is running on port  : ${port}`);
+});
